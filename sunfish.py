@@ -299,12 +299,13 @@ class Searcher:
             if killer and (depth > 0 or pos.value(killer) >= QS_LIMIT):
                 yield killer, -self.bound(pos.move(killer), 1-gamma, depth-1, root=False)
             # Then all the other moves
-            for move in sorted(pos.gen_moves(), key=pos.value, reverse=True):
+            for count, move in enumerate(sorted(pos.gen_moves(), key=pos.value, reverse=True), start=1):
             #for val, move in sorted(((pos.value(move), move) for move in pos.gen_moves()), reverse=True):
                 # If depth == 0 we only try moves with high intrinsic score (captures and
                 # promotions). Otherwise we do all moves.
                 if depth > 0 or pos.value(move) >= QS_LIMIT:
-                    yield move, -self.bound(pos.move(move), 1-gamma, depth-1, root=False)
+                    if count > 3 and pos.board[move[1]]=='.': yield move, -self.bound(pos.move(move), 1-gamma, depth-3, root=False)
+                    else: yield move, -self.bound(pos.move(move), 1-gamma, depth-1, root=False)
 
         # Run through the moves, shortcutting when possible
         best = -MATE_UPPER
